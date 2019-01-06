@@ -1,0 +1,20 @@
+#!/bin/bash
+
+now=`date '+%Y%m%d%H%M%S'`;
+filepath="/shared/bin/kernel-$now.elf"
+
+i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/start.s -o /shared/obj/start.o
+i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/kernel.c -o /shared/obj/kernel.o
+
+i686-elf-gcc \
+    -ffreestanding \
+    -nostdlib \
+    -g \
+    -T /shared/linker.ld \
+    /shared/obj/start.o \
+    /shared/obj/kernel.o \
+    -o $filepath \
+    -lgcc \
+        && echo "Kernel generated at $filepath" \
+        && rm /shared/obj/start.o \
+        && rm /shared/obj/kernel.o
