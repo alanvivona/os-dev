@@ -7,14 +7,14 @@ mkdir -p /shared/obj
 rm -rf /shared/bin
 mkdir -p /shared/bin
 
-i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/start.s -o /shared/obj/start.o
-i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/kernel.c -o /shared/obj/kernel.o
+i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/src/start.s -o /shared/obj/start.o
+i686-elf-gcc -std=gnu99 -ffreestanding -g -c /shared/src/kernel.c -o /shared/obj/kernel.o
 
 i686-elf-gcc \
     -ffreestanding \
     -nostdlib \
     -g \
-    -T /shared/linker.ld \
+    -T /shared/src/linker.ld \
     /shared/obj/start.o \
     /shared/obj/kernel.o \
     -o $filepath \

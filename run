@@ -1,4 +1,7 @@
 #!/bin/bash
-sudo docker run --mount src=$(pwd)/dev,target=/shared,type=bind joshwyant/gcc-cross /shared/utils/gen-kernel
-echo "Runing new kernel on qemu..."
-qemu-system-i386 -kernel dev/bin/$(ls dev/bin/)
+sudo docker run \
+    --mount src=$(pwd)/dev,target=/shared,type=bind \
+    joshwyant/gcc-cross \
+    /shared/utils/gen-kernel \
+    && echo "Runing new kernel on qemu..." \
+    && qemu-system-i386 -kernel dev/bin/$(ls dev/bin/)

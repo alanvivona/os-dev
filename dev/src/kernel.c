@@ -164,7 +164,7 @@ void kernel_main()
 	term_print_line('-', &term_color, 1);
 
 	term_set_colors(&color_cyan, &color_black);
-	term_print_string("\tGreetings, human!\n", &term_color);
+	term_print_string("\tGreetins, human!\n", &term_color);
 
 	term_set_colors(&color_red, &color_black);
 	term_print_string("\tGreetings, human!\n", &term_color);
