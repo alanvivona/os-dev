@@ -21,6 +21,39 @@ const int VGA_ROWS = 25;
 
 int term_col = 0;
 int term_row = 0;
+
+void buffer_fix_boundaries(){
+	if (term_col >= VGA_COLS)
+	{
+		term_col = 0;
+		term_row++;
+	}
+	if (term_row >= VGA_ROWS)
+	{
+		term_row = 0;
+	}
+}
+
+size_t buffer_get_index(){
+	return (VGA_COLS * term_row) + term_col;
+}
+
+void buffer_jump_line(){
+	term_col = 0;
+	term_row++;
+	buffer_fix_boundaries();
+}
+
+void buffer_jump_next(){
+	term_col++;
+	buffer_fix_boundaries();
+}
+
+void buffer_jump_to(int row, int col){
+	term_col = col;
+	term_row = row;
+	buffer_fix_boundaries();
+}
 /* VGA buffer definition END */
 
 /* Color definitions START */
@@ -58,42 +91,31 @@ void term_clear()
 	}
 }
 
-void term_putc(char c, uint8_t *color)
+void term_print_char(char c, uint8_t *color, size_t buffer_index)
 {
 	switch (c)
 	{
-	case '\n':
-		// support for new line
+		case '\n':
+			// support for new line
+			{
+				buffer_jump_line();
+				break;
+			}
+		case '\t':
+			// support for tab
+			{
+				for(size_t i = 0; i < tab_size; i++)
+				{
+					buffer_jump_next();
+				}
+				break;
+			}
+		default:
 		{
-			term_col = 0;
-			term_row++;
+			vga_buffer[buffer_index] = ((uint16_t)*color << 8) | c;
+			term_col++;
 			break;
 		}
-	case '\t':
-		// support for tab
-		{
-			term_col += tab_size;
-			break;
-		}
-	default:
-	{
-		const size_t index = (VGA_COLS * term_row) + term_col;
-		vga_buffer[index] = ((uint16_t)*color << 8) | c;
-		term_col++;
-		break;
-	}
-	}
-
-	if (term_col >= VGA_COLS)
-	{
-		term_col = 0;
-		term_row++;
-	}
-
-	if (term_row >= VGA_ROWS)
-	{
-		term_col = 0;
-		term_row = 0;
 	}
 }
 
@@ -104,7 +126,9 @@ void term_print_string(const char *str, uint8_t *color)
 		color = &term_color;
 	}
 	for (size_t i = 0; str[i] != '\0'; i++)
-		term_putc(str[i], color);
+	{
+		term_print_char(str[i], color, buffer_get_index());
+	}
 }
 
 void term_print_line(const char c, uint8_t *color, bool is_vertical)
@@ -115,18 +139,19 @@ void term_print_line(const char c, uint8_t *color, bool is_vertical)
 	}
 
 	int limit = VGA_COLS;
-	if (is_vertical) {
+	if (is_vertical)
+	{
 		int limit = VGA_ROWS;
-	}	
+	}
 
 	for (size_t i = 0; i < limit; i++)
 	{
-		term_putc(c, color);
-		
-		if (is_vertical) {
-			term_putc('\n', color);
+		term_print_char(c, color, buffer_get_index());
+
+		if (is_vertical)
+		{
+			term_print_char('\n', color, buffer_get_index());
 		}
-		
 	}
 }
 
