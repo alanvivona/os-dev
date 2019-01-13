@@ -1,7 +1,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "colors.h"
+#include "driver/vga/colors.h"
+
+#include "screen/screen.h"
 
 #if defined(__linux__)
 #error "This code must be compiled with a cross-compiler"

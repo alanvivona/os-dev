@@ -1,10 +1,16 @@
+#include <stddef.h>
+#include <stdint.h>
+
+#include "driver/vga/vga.h"
+#include "driver/vga/colors.h"
+
 const uint8_t screen_tab_size = 0b00000010;
 
 uint8_t screen_color; // a single byte containing fg and bg color
 
 void screen_set_default_colors(uint8_t *fg, uint8_t *bg)
 {
-	term_color = *fg | (*bg << 4);
+	screen_color = *fg | (*bg << 4);
 }
 
 void screen_putc(char c, uint8_t *color)
@@ -20,7 +26,7 @@ void screen_putc(char c, uint8_t *color)
 	case '\t':
 		// support for tab
 		{
-			for (size_t i = 0; i < tab_size; i++)
+			for (size_t i = 0; i < screen_tab_size; i++)
 			{
 				buffer_jump_next();
 			}
@@ -73,26 +79,7 @@ void screen_print_line(uint8_t *color, bool is_vertical, uint8_t position, uint8
 
 void screen_print_square(uint8_t *color, uint8_t position, uint8_t size)
 {
-	if (!color)
-	{
-		color = &term_color;
-	}
-
-	int limit = VGA_COLS;
-	if (is_vertical)
-	{
-		int limit = VGA_ROWS;
-	}
-
-	for (size_t i = 0; i < limit; i++)
-	{
-		term_print_char(c, color, buffer_get_index());
-
-		if (is_vertical)
-		{
-			term_print_char('\n', color, buffer_get_index());
-		}
-	}
+    
 }
 
 void screen_clear()

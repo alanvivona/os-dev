@@ -1,0 +1,8 @@
+
+
+
+The purpose of the refactor is the following:
+    - vga should be in charge of writing a pixel to a given addres in the buffer and ensuring there are no writes outside the buffer. that's it
+    - screen should use vga and be in charge of displaying chars, strings and simple forms (lines ans squares)
+    - lines and squares only set the BACKGROUND color, chars and strings only use the FOREGROUND color. when writing to the buffer combine the fg and bg color as needed
+    - the kernel should take care of orchestration
