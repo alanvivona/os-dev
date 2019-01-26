@@ -8,8 +8,8 @@
 ;	
 ;	Some colors (not all of them):
 ;	black	= 0b00000000 = 0x00
-;	green 	= 0b00000001 = 0x01
-;	red 	= 0b00000010 = 0x02
+;	blue 	= 0b00000001 = 0x01
+;	green	= 0b00000010 = 0x02
 ;	cyan 	= 0b00000011 = 0x03
 ;	lgray 	= 0b00000111 = 0x07
 ;	gray 	= 0b00001000 = 0x08
@@ -57,18 +57,35 @@ Text.Whitespace equ 0x0320 ; 0x0320 = 0 blakc bg, 3 cyan fg, 20 (" " == space)
 _Kernel_Start:
 	mov eax, Text.Whitespace 	
 	call _fillScreen
-	
-	mov eax, 0x1f41 	; 1 green bg, f white fg, 41 A
-	; pass address for the 3rd row, four spaces to the right (one tab) 
-	lea ebx, [ VGA.Buffer ];+ (VGA.Cols * 2 * VGA.BlockSize) + (VGA.BlockSize * 4) ]
-	call _writeChar
 
 	lea ecx, [VGA.Lenght-1]
 	_Kernel_Start.loop:
+		
+		; calc modulo 3 of ecx
+		mov dx, 0     
+		mov eax, ecx
+		mov ebx, 3
+		div bx       ; Divides ecx by 3. DX = modulo and AX = result
+
+		; edx = modulo result
+		mov eax, 0x0220		; base value = 0 black bg, 2 green fg, 20 " "
+		cmp edx, 1
+		jg _Kernel_Start.pushNextChar
+		; if edx > 1
+		;	jmp to _writeChar
+		; else
+		lea eax, [eax + 0x0010 + edx] 	; eax was 0x0120 + 0x0010 + edx = could be 0x0130 ("0") or 0x0131 ("1")
+
+		_Kernel_Start.pushNextChar:
+		; pass address for the 3rd row, four spaces to the right (one tab) 
+		lea ebx, [ VGA.Buffer ];+ (VGA.Cols * 2 * VGA.BlockSize) + (VGA.BlockSize * 4) ]
+		call _writeChar
+		
 		push ecx
 		call _scroll
 		pop ecx
 		dec ecx
+
 	jnz _Kernel_Start.loop
 
 	hlt
