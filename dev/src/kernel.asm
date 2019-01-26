@@ -58,22 +58,21 @@ _Kernel_Start:
 	mov eax, Text.Whitespace 	
 	call _fillScreen
 
-	lea ecx, [VGA.Lenght-1]
+	_Kernel_Start.loopSet:
+		lea ecx, [VGA.Lenght-1]
+
 	_Kernel_Start.loop:
 		
 		; calc modulo 3 of ecx
 		mov dx, 0     
 		mov eax, ecx
 		mov ebx, 3
-		div bx       ; Divides ecx by 3. DX = modulo and AX = result
+		div bx       ; divides ecx by 3. dx = modulo and ax = division result
 
 		; edx = modulo result
 		mov eax, 0x0220		; base value = 0 black bg, 2 green fg, 20 " "
 		cmp edx, 1
 		jg _Kernel_Start.pushNextChar
-		; if edx > 1
-		;	jmp to _writeChar
-		; else
 		lea eax, [eax + 0x0010 + edx] 	; eax was 0x0120 + 0x0010 + edx = could be 0x0130 ("0") or 0x0131 ("1")
 
 		_Kernel_Start.pushNextChar:
@@ -87,6 +86,8 @@ _Kernel_Start:
 		dec ecx
 
 	jnz _Kernel_Start.loop
+
+	jmp _Kernel_Start.loopSet ; infinite loop for an infinite matrix
 
 	hlt
 
