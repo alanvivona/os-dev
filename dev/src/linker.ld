@@ -1,4 +1,4 @@
-ENTRY(_Kernel_Start)
+ENTRY(_Kernel.Start)
 OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS {
