@@ -58,25 +58,25 @@ _Kernel.Start:
 	mov eax, Text.Whitespace 	
 	call _fillScreen
 
+	; fill a row - BEGIN
 	_Kernel.Start.loop.set:
-		lea ecx, [VGA.Lenght-1]
-
+		lea ecx, [VGA.Cols]
 	_Kernel.Start.loop:
-		
+		push ecx
+		call _scroll.horizontal
+		pop ecx
+
 		call _getSequenceChar
 		or eax, 0x0200		; char is now on eax, let's add the colors: 0 black bg, 2 green fg
-
-		; pass address for the 3rd row, four spaces to the right (one tab) 
-		lea ebx, [ VGA.Buffer ];+ (VGA.Cols * 2 * VGA.BlockSize) + (VGA.BlockSize * 4) ]
+ 
+		lea ebx, [ VGA.Buffer ]
 		call _writeChar
 		
-		push ecx
-		call _scroll.vertical
-		pop ecx
 		dec ecx
-
 	jnz _Kernel.Start.loop
+	; fill a row - END
 
+	call _scroll.vertical
 	jmp _Kernel.Start.loop.set ; infinite loop for an infinite matrix
 
 	hlt
@@ -100,12 +100,12 @@ _writeChar:
 _scroll.horizontal:
 	; start looping throught the buffer in reverse order to replace
 	; each byte with the content of the previous one
-	mov ecx, VGA.Lenght
+	lea ecx, [ VGA.Lenght - 1 ]
 	_scroll.horizontal.loop:
-		mov eax, [ VGA.Buffer + ((ecx-2)*VGA.BlockSize) ]
-		mov [ VGA.Buffer + ((ecx-1)*VGA.BlockSize) ], eax
+		mov eax, [ VGA.Buffer + ((ecx - 1) * VGA.BlockSize) ]
+		mov [ VGA.Buffer + (ecx * VGA.BlockSize) ], eax
 		dec ecx
-		cmp ecx, 1
+		cmp ecx, -1
 	jne _scroll.horizontal.loop
 	
 	ret
@@ -114,14 +114,21 @@ _scroll.vertical:
 	; start looping throught the buffer in reverse order to replace
 	; each byte with the content of the previous one
 	
-	lea ecx, [VGA.Lenght - VGA.Cols] ; skip the last row, it'll be overriden
+	lea ecx, [VGA.Lenght - 2 - VGA.Cols] ; skip the last row, it'll be overriden
 	_scroll.vertical.loop:
-		mov eax, [ VGA.Buffer + ((ecx-2)*VGA.BlockSize) ]
-		mov [ VGA.Buffer + ((ecx-2+ VGA.Cols)*VGA.BlockSize) ], eax
+		mov eax, [ VGA.Buffer + (ecx * VGA.BlockSize) ]
+		mov [ VGA.Buffer + (ecx + VGA.Cols) * VGA.BlockSize ], eax
 		dec ecx
-		cmp ecx, 1
+		cmp ecx, -1
 	jne _scroll.vertical.loop
 	
+	mov ecx, VGA.Cols-1
+	_scroll.vertical.emptyFirstRow.loop:
+		mov BYTE [ VGA.Buffer + (ecx * VGA.BlockSize) ], 0x0020 ; put empty space
+		dec ecx
+		cmp ecx, -1
+		jne _scroll.vertical.emptyFirstRow.loop	
+
 	ret
 
 _getSequenceChar:
