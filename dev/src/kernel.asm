@@ -69,9 +69,8 @@ _Kernel.Start:
 		call _getSequenceChar
 		or eax, 0x0200		; char is now on eax, let's add the colors: 0 black bg, 2 green fg
  
-		lea ebx, [ VGA.Buffer ]
-		call _writeChar
-		
+		mov [VGA.Buffer], ax
+
 		dec ecx
 	jnz _Kernel.Start.loop
 	; fill a row - END
@@ -89,12 +88,6 @@ _fillScreen:
 		mov word [ebx], ax
 		add ebx, VGA.BlockSize
 	loop _fillScreen.loop
-	ret
-
-_writeChar:
-	; ax 	= char to fill the screen with
-	; ebx 	= address 
-	mov [ebx], ax
 	ret
 
 _scroll.horizontal:
