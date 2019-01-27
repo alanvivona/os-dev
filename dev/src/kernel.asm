@@ -116,8 +116,8 @@ _scroll.vertical:
 	
 	lea ecx, [VGA.Lenght - VGA.Cols] ; skip the last row, it'll be overriden
 	_scroll.vertical.loop:
-		mov eax, [ VGA.Buffer + ((ecx-1)*VGA.BlockSize) ]
-		mov [ VGA.Buffer + ((ecx-VGA.Cols)*VGA.BlockSize) ], eax
+		mov eax, [ VGA.Buffer + ((ecx-2)*VGA.BlockSize) ]
+		mov [ VGA.Buffer + ((ecx-2+ VGA.Cols)*VGA.BlockSize) ], eax
 		dec ecx
 		cmp ecx, 1
 	jne _scroll.vertical.loop
