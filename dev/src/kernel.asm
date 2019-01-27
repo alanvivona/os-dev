@@ -63,17 +63,8 @@ _Kernel_Start:
 
 	_Kernel_Start.loop:
 		
-		; calc modulo 3 of ecx
-		mov dx, 0     
-		mov eax, ecx
-		mov ebx, 3
-		div bx       ; divides ecx by 3. dx = modulo and ax = division result
-
-		; edx = modulo result
-		mov eax, 0x0220		; base value = 0 black bg, 2 green fg, 20 " "
-		cmp edx, 1
-		jg _Kernel_Start.pushNextChar
-		lea eax, [eax + 0x0010 + edx] 	; eax was 0x0120 + 0x0010 + edx = could be 0x0130 ("0") or 0x0131 ("1")
+		call _getSequenceChar
+		or eax, 0x0200		; char is now on eax, let's add the colors: 0 black bg, 2 green fg
 
 		_Kernel_Start.pushNextChar:
 		; pass address for the 3rd row, four spaces to the right (one tab) 
@@ -124,7 +115,25 @@ _scroll:
 	call _writeChar
 	
 	ret
-		
+
+_getSequenceChar:
+	; returns the next char of a repetitive pattern
+	; receives the pattern index in ecx
+	; returns the character in eax
+
+	; calc modulo 3 of ecx
+	mov dx, 0     
+	mov eax, ecx
+	mov ebx, 3
+	div bx			; divides ecx by 3. dx = modulo and ax = division result
+
+	; edx = modulo result
+	mov eax, 0x20		; 20 == " "
+	cmp edx, 1
+	jg _getSequenceChar.return
+	lea eax, [0x30 + edx] 	; 0x30 + edx = could be 0x30 ("0") or 0x31 ("1")
+	_getSequenceChar.return:
+	ret
 
 
 
