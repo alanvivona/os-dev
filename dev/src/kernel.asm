@@ -20,10 +20,21 @@ Multiboot.Info_Structure dd 0
 %include "dev/src/graphics.asm"
 
 _Kernel.Start:
-	mov eax, VGA.Text.Whitespace 	
-	call _fillScreen
+	
+	mov eax, VGA.Text.Whitespace
+	call VGA._fillScreen
+	mov eax, 0xfffffff
+	call _wait
 
-	; fill a row - BEGIN
+	mov eax, VGA.Text.GreenDot
+	call VGA._fillScreen
+	mov eax, 0xfffffff
+	call _wait
+
+	mov eax, VGA.Text.RedHashtag
+	call VGA._fillScreen
+
+	; fill one row - BEGIN
 	_Kernel.Start.loop.set:
 		lea ecx, [VGA.Cols]
 	_Kernel.Start.loop:
@@ -38,9 +49,10 @@ _Kernel.Start:
 
 		dec ecx
 	jnz _Kernel.Start.loop
-	; fill a row - END
+	; fill one row - END
 
-	call _scroll.vertical
+	;call VGA._scroll.vertical
+	
 	jmp _Kernel.Start.loop.set ; infinite loop for an infinite matrix
 
 	hlt
@@ -53,13 +65,16 @@ _getSequenceChar:
 	; calc modulo 3 of ecx
 	mov dx, 0     
 	mov eax, ecx
-	mov ebx, 3
-	div bx			; divides ecx by 3. dx = modulo and ax = division result
+	mov ebx, 2
+	div bx			; divides ecx by 2. dx = modulo and ax = division result
 
 	; edx = modulo result
-	mov eax, 0x20		; 20 == " "
-	cmp edx, 1
-	jg _getSequenceChar.return
 	lea eax, [0x30 + edx] 	; 0x30 + edx = could be 0x30 ("0") or 0x31 ("1")
-	_getSequenceChar.return:
+	ret
+
+_wait:
+	mov ecx, eax
+	_wait.loop:
+		nop
+		loop _wait.loop
 	ret

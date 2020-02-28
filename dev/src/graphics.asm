@@ -1,5 +1,5 @@
 ;
-; 	VGA definition 
+; 	VGA definition : https://wiki.osdev.org/Printing_to_Screen
 ;	
 ;	Buffer starts at 0xB8000
 ;	COLS = 80 = 0x50
@@ -11,6 +11,7 @@
 ;	blue 	= 0b00000001 = 0x01
 ;	green	= 0b00000010 = 0x02
 ;	cyan 	= 0b00000011 = 0x03
+;   red     = 0b00000100 = 0x04
 ;	lgray 	= 0b00000111 = 0x07
 ;	gray 	= 0b00001000 = 0x08
 ;	white 	= 0b00001111 = 0x0F
@@ -37,7 +38,9 @@ VGA.Rows equ 25
 VGA.Lenght equ 2000
 VGA.BlockSize equ 2
 
-VGA.Text.Whitespace equ 0x0020 ; 0 blakc bg, 3 black fg, char 20 (" " == space)
+VGA.Text.Whitespace equ 0x0020 ; 0 blakc bg, 0 black fg, char 20 (" ")
+VGA.Text.GreenDot   equ 0x022e ; 0 blakc bg, 2 green fg, char 2r (".")
+VGA.Text.RedHashtag equ 0x0423 ; 0 blakc bg, 4 red fg, char 23 ("#")
 
 VGA._fillScreen:
 	; ax = char to fill the screen with
@@ -59,7 +62,6 @@ VGA._scroll.horizontal:
 		dec ecx
 		cmp ecx, -1
 	jne _scroll.horizontal.loop
-	
 	ret
 
 VGA._scroll.vertical:
@@ -79,5 +81,4 @@ VGA._scroll.vertical:
 		dec ecx
 		cmp ecx, -1
 		jne _scroll.vertical.emptyFirstRow.loop	
-
 	ret
