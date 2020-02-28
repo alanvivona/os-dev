@@ -9,9 +9,9 @@ mkdir -p ./dev/obj
 rm -rf ./dev/bin
 mkdir -p ./dev/bin
 
-nasm -g -f elf32 -o ./dev/obj/kernel.o ./dev/src/kernel.asm
-ld -m elf_i386 -T ./dev/src/linker.ld -o $filepath ./dev/obj/kernel.o
+nasm -g -f elf32 -o ./dev/obj/kernel.o ./dev/src/kernel.asm || exit
+ld -m elf_i386 -T ./dev/src/linker.ld -o $filepath ./dev/obj/kernel.o || exit
 
-genisoimage -o ./dev/bin/kernel.iso $filepath
+genisoimage -o ./dev/bin/kernel.iso $filepath || exit
 
 sudo qemu-system-i386 -boot c --kernel $filepath -enable-kvm
